@@ -1,3 +1,5 @@
+"use client"
+
 import React, {FC} from 'react';
 import {Button} from '@/components/ui/button';
 import {RxDashboard, RxCalendar} from "react-icons/rx";
@@ -7,12 +9,18 @@ import {PiListChecksLight} from "react-icons/pi";
 import {HiMiniBuildingOffice2} from "react-icons/hi2";
 import {BsGear} from "react-icons/bs";
 import {CiLogout} from "react-icons/ci";
+import { useRouter } from 'next/navigation';
 
 interface SidebarProps{
 
 }
 
 const Sidebar: FC<SidebarProps> = ({ }) => {
+
+  const router = useRouter()
+  const navHome = () => router.push('/')
+  const navJobListings = () => router.push('/job-listings')
+
     return (
       <div className="pb-12 min-h-screen">
         <div className="space-y-4 py-4">
@@ -22,6 +30,7 @@ const Sidebar: FC<SidebarProps> = ({ }) => {
               <Button
                 variant={"ghost"}
                 className="w-full justify-start rounded-none hover:text-primary"
+                onClick={navHome}
               >
                 <RxDashboard className="mr-2 text-lg" />
                 Home
@@ -54,6 +63,7 @@ const Sidebar: FC<SidebarProps> = ({ }) => {
               <Button
                 variant={"ghost"}
                 className="w-full justify-start rounded-none hover:text-primary"
+                onClick={navJobListings}
               >
                 <PiListChecksLight className="mr-2 text-lg" />
                 Job Listings
