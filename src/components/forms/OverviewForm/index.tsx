@@ -85,6 +85,7 @@ const OverviewForm: FC<OverviewFormProps> = ({ }) => {
                         {...field}
                       />
                     </FormControl>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -102,6 +103,7 @@ const OverviewForm: FC<OverviewFormProps> = ({ }) => {
                         {...field}
                       />
                     </FormControl>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
