@@ -20,6 +20,7 @@ const Sidebar: FC<SidebarProps> = ({ }) => {
   const router = useRouter()
   const navHome = () => router.push('/')
   const navJobListings = () => router.push('/job-listings')
+  const navSettings = () => router.push('/settings')
 
     return (
       <div className="pb-12 min-h-screen">
@@ -86,6 +87,7 @@ const Sidebar: FC<SidebarProps> = ({ }) => {
               <Button
                 variant={"ghost"}
                 className="w-full justify-start rounded-none hover:text-primary"
+                onClick={navSettings}
               >
                 <BsGear className="mr-2 text-lg" />
                 Settings

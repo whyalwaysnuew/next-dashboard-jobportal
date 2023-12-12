@@ -202,7 +202,7 @@ const PostJobPage: FC<PostJobPageProps> = ({}) => {
             title="Required Skills"
             subtitle="Add required skills for the job"
           >
-            <InputSkills form={form} />
+            <InputSkills form={form} name="requiredSkills" label="Add Skills" />
           </FieldInput>
 
           <FieldInput
@@ -253,9 +253,7 @@ const PostJobPage: FC<PostJobPageProps> = ({}) => {
             title="Perks and Benefits"
             subtitle="Encourage more people to apply by sharing the attractive rewards and benefits you offer your employees"
           >
-            <InputBenefits 
-              form={form}
-            />
+            <InputBenefits form={form} />
           </FieldInput>
 
           <div className="flex justify-end">
