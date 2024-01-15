@@ -10,6 +10,7 @@ import {HiMiniBuildingOffice2} from "react-icons/hi2";
 import {BsGear} from "react-icons/bs";
 import {CiLogout} from "react-icons/ci";
 import { useRouter } from 'next/navigation';
+import { signOut } from 'next-auth/react';
 
 interface SidebarProps{
 
@@ -96,6 +97,7 @@ const Sidebar: FC<SidebarProps> = ({ }) => {
               <Button
                 variant={"ghost"}
                 className="w-full text-red-500 justify-start rounded-none hover:bg-red-200 hover:text-red-500"
+                onClick={() => signOut()}
               >
                 <CiLogout className="mr-2 text-lg" />
                 Logout
