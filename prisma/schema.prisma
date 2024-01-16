@@ -68,7 +68,7 @@ model Companyoverview {
 model Job {
     id             String       @id @default(cuid())
     roles          String
-    datrPosted     DateTime     @default(now())
+    datePosted     DateTime     @default(now())
     dueDate        DateTime
     jobType        String
     applicants     Int
