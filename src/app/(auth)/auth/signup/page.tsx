@@ -40,7 +40,7 @@ const SignUpPage: FC<SignUpPageProps> = ({  }) => {
         body: JSON.stringify(val)
       })
 
-      await router.push('/auth/signup')
+      await router.push('/auth/signin')
 
     } catch (error) {
       toast({
@@ -48,7 +48,7 @@ const SignUpPage: FC<SignUpPageProps> = ({  }) => {
         description: 'Please Try Again'
       })
 
-      console.log(error);
+      // console.log(error);
     }
   }
 
