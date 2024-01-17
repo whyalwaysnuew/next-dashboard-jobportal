@@ -35,10 +35,7 @@ async function getDetailJob(id: string) {
 
 const JobDetailPage: FC<JobDetailPageProps> = async ({ params }) => {
 
-  const job = await getDetailJob(params.id)
-
-  console.log(job);
-  
+  const job = await getDetailJob(params.id)  
 
   return (
     <div>
