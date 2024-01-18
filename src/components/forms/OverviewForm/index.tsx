@@ -1,16 +1,23 @@
-"use client"
+"use client";
 
-import React, { FC, useEffect, useState } from 'react';
-import { Form, FormField, FormItem, FormLabel , FormControl, FormMessage,} from '@/components/ui/form';
-import TitleForm from '@/components/atoms/TitleForm';
-import { Separator } from '@/components/ui/separator';
-import FieldInput from '@/components/organisms/FieldInput';
-import { overviewFormSchema } from '@/lib/form-schema';
+import React, {FC, useEffect, useState} from "react";
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
+import TitleForm from "@/components/atoms/TitleForm";
+import {Separator} from "@/components/ui/separator";
+import FieldInput from "@/components/organisms/FieldInput";
+import {overviewFormSchema} from "@/lib/form-schema";
 import {useForm} from "react-hook-form";
-import { zodResolver } from '@hookform/resolvers/zod';
+import {zodResolver} from "@hookform/resolvers/zod";
 import {z} from "zod";
-import CustomUpload from '@/components/organisms/CustomUpload';
-import { Input } from '@/components/ui/input';
+import CustomUpload from "@/components/organisms/CustomUpload";
+import {Input} from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -18,34 +25,94 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { EMPLOYEE_OPTIONS, LOCATION_OPTIONS, optionType } from '@/constants';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Button } from '@/components/ui/button';
-import { CalendarIcon } from 'lucide-react';
+import {EMPLOYEE_OPTIONS, LOCATION_OPTIONS, optionType} from "@/constants";
+import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover";
+import {Button} from "@/components/ui/button";
+import {CalendarIcon} from "lucide-react";
 import {Calendar} from "@/components/ui/calendar";
 import {format} from "date-fns";
-import { cn } from '@/lib/utils';
-import InputSkills from '@/components/organisms/InputSkills';
-import CKEditor from '@/components/organisms/CKEditor';
+import {cn, fetcher} from "@/lib/utils";
+import InputSkills from "@/components/organisms/InputSkills";
+import CKEditor from "@/components/organisms/CKEditor";
+import useSWR from "swr";
+import {Companyoverview, Industry} from "@prisma/client";
+import { supabaseUploadFile } from "@/lib/supabase";
+import { useSession } from "next-auth/react";
+import { useToast } from "@/components/ui/use-toast";
+import { useRouter } from "next/navigation";
 
 interface OverviewFormProps {
+  detail: Companyoverview | undefined;
 }
 
-const OverviewForm: FC<OverviewFormProps> = ({ }) => {
+const OverviewForm: FC<OverviewFormProps> = ({detail}) => {
+  const [editorLoaded, setEditorLoaded] = useState<boolean>(false);
 
-    const [editorLoaded, setEditorLoaded] = useState<boolean>(false)
+  const {data: session} = useSession();
 
-    const form = useForm<z.infer<typeof overviewFormSchema>>({
-        resolver: zodResolver(overviewFormSchema)
-    });
+  const {toast} = useToast()
 
-    const onSubmit = (val: z.infer<typeof overviewFormSchema>) => {
-        console.log(val);
-    };
+  const router = useRouter()
 
-    useEffect(() => {
-      setEditorLoaded(true)
-    }, [])
+  const {data} = useSWR<Industry[]>("/api/company/industry", fetcher);
+
+  const form = useForm<z.infer<typeof overviewFormSchema>>({
+    resolver: zodResolver(overviewFormSchema),
+    defaultValues: {
+      dateFounded: detail?.dateFounded,
+      description: detail?.description,
+      employee: detail?.employee,
+      image: detail?.image,
+      industry: detail?.industry,
+      location: detail?.location,
+      name: detail?.name,
+      techStack: detail?.techStack,
+      website: detail?.website
+    }
+  });
+
+  const onSubmit = async (val: z.infer<typeof overviewFormSchema>) => {
+    try {
+      let filename = ""
+
+      if(typeof val.image === "object"){
+        const uploadImg = await supabaseUploadFile(val.image, "company")
+
+        filename = uploadImg.filename
+      } else {
+        filename = val.image
+      }
+
+      const body = {
+        ...val,
+        image: filename,
+        companyId: session?.user.id
+      }
+
+      await fetch('/api/company/overview', {
+        method: 'POST',
+        headers: {'Content-Type': ''},
+        body: JSON.stringify(body)
+      })
+
+      toast({
+        title: 'Success',
+        description: 'Edit profile success'
+      })
+
+      router.refresh()
+
+    } catch (error) {
+      await toast({
+        title: 'Error',
+        description: 'Please try again'
+      })
+    }
+  };
+
+  useEffect(() => {
+    setEditorLoaded(true);
+  }, []);
 
   return (
     <div>
@@ -182,13 +249,11 @@ const OverviewForm: FC<OverviewFormProps> = ({ }) => {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {LOCATION_OPTIONS.map(
-                            (item: optionType, i: number) => (
-                              <SelectItem key={item.id + 1} value={item.id}>
-                                {item.label}
-                              </SelectItem>
-                            )
-                          )}
+                          {data?.map((item: Industry) => (
+                            <SelectItem key={item.id} value={item.id}>
+                              {item.name}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -239,23 +304,32 @@ const OverviewForm: FC<OverviewFormProps> = ({ }) => {
                 )}
               />
 
-              <InputSkills form={form} name='techStack' label='Add Tech Stack'/>
-                
+              <InputSkills
+                form={form}
+                name="techStack"
+                label="Add Tech Stack"
+              />
             </div>
           </FieldInput>
 
-          <FieldInput title="About Company" subtitle="Brief description for your company. URLs are hyperlinked." >
-            <CKEditor form={form} name="description" editorLoaded={editorLoaded} />
+          <FieldInput
+            title="About Company"
+            subtitle="Brief description for your company. URLs are hyperlinked."
+          >
+            <CKEditor
+              form={form}
+              name="description"
+              editorLoaded={editorLoaded}
+            />
           </FieldInput>
 
           <div className="flex justify-end">
-            <Button size='lg'>Save Changes</Button>
+            <Button size="lg">Save Changes</Button>
           </div>
-
         </form>
       </Form>
     </div>
   );
-}
+};
 
 export default OverviewForm;

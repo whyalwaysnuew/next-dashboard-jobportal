@@ -1,15 +1,37 @@
-import React, { FC } from 'react'
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import OverviewForm from '@/components/forms/OverviewForm';
-import SocialMediaForm from '@/components/forms/SocialMediaForm';
-import TeamForm from '@/components/forms/TeamForm';
+import React, {FC} from "react";
+import {Tabs, TabsList, TabsTrigger, TabsContent} from "@/components/ui/tabs";
+import OverviewForm from "@/components/forms/OverviewForm";
+import SocialMediaForm from "@/components/forms/SocialMediaForm";
+import TeamForm from "@/components/forms/TeamForm";
+import {getServerSession} from "next-auth";
+import {authOptions} from "@/app/api/auth/[...nextauth]/route";
+import prisma from "../../../../lib/prisma";
 
+interface SettingsPageProps {}
 
-interface SettingsPageProps {
-  
+async function getDetailCompany() {
+  const session = await getServerSession(authOptions);
+
+  const company = await prisma.company.findFirst({
+    where: {
+      id: session?.user.id,
+    },
+    include: {
+      Companyoverview: true,
+      CompanysocailMedia: true,
+      CompanyTeam: true
+    },
+  });
+
+  return company;
 }
 
-const SettingsPage: FC<SettingsPageProps> = ({  }) => {
+const SettingsPage: FC<SettingsPageProps> = async ({}) => {
+
+  const company = await getDetailCompany()
+  
+
+
   return (
     <div>
       <div className="font-semibold text-3xl mb-5">Settings</div>
@@ -21,23 +43,23 @@ const SettingsPage: FC<SettingsPageProps> = ({  }) => {
           <TabsTrigger value="teams">Teams</TabsTrigger>
         </TabsList>
         <TabsContent value="overview">
-            <div>
-                <OverviewForm />
-            </div>
+          <div>
+            <OverviewForm detail={company?.Companyoverview[0]} />
+          </div>
         </TabsContent>
         <TabsContent value="socialLinks">
           <div>
-            <SocialMediaForm />
+            <SocialMediaForm detail={company?.CompanysocailMedia[0]}/>
           </div>
         </TabsContent>
         <TabsContent value="teams">
           <div>
-            <TeamForm />
+            <TeamForm teams={company?.CompanyTeam}/>
           </div>
         </TabsContent>
       </Tabs>
     </div>
   );
-}
+};
 
 export default SettingsPage;

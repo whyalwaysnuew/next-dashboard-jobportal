@@ -14,7 +14,7 @@ import {
 import {Input} from "@/components/ui/input";
 import {jobFormSchema} from "@/lib/form-schema";
 
-import React, {FC, useRef, useState} from "react";
+import React, {FC, useEffect, useRef, useState} from "react";
 import {UseFormReturn} from "react-hook-form";
 import {z} from "zod";
 
@@ -48,6 +48,14 @@ const InputSkills: FC<InputSkillsProps> = ({form, name, label}) => {
     form.setValue(name, skills);
   };
 
+  useEffect(() => {
+    const val = form.getValues(name);
+
+    if (val && val.length > 0) {
+      setValues(val);
+    }
+  }, [form, name]);
+
   return (
     <FormField
       control={form.control}
@@ -68,29 +76,23 @@ const InputSkills: FC<InputSkillsProps> = ({form, name, label}) => {
               </Button>
               {isHide && (
                 <div className="my-4 flex flex-row gap-4">
-                    <Input 
-                        ref={inputRef}
-                        className="w-[246px]"
-                    />
-                    <Button 
-                    type="button"
-                    onClick={handleSaveValue}
-                    >
-                        Save
-                    </Button>
+                  <Input ref={inputRef} className="w-[246px]" />
+                  <Button type="button" onClick={handleSaveValue}>
+                    Save
+                  </Button>
                 </div>
               )}
               <div className="space-x-3">
                 {values.map((item: string, key: number) => (
-                    <Badge 
+                  <Badge
                     variant={"outline"}
                     key={key}
                     onClick={() => handleDeleteValue(item)}
                     className="py-2 px-4"
-                    >
-                        {item}
-                        <RxCross2 className="w-3 h-3" />
-                    </Badge>
+                  >
+                    {item}
+                    <RxCross2 className="w-3 h-3" />
+                  </Badge>
                 ))}
               </div>
             </>
